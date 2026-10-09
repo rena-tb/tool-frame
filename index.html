@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ツール</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #fff; }
+  iframe { display: block; border: 0; width: 100%; height: 100%; }
+  p { font: 14px/1.6 -apple-system, sans-serif; padding: 16px; color: #555; }
+</style>
+</head>
+<body>
+<script>
+/*
+ * GAS WebAppのページを、画面いっぱいの枠（iframe）の中で開くだけのページ。
+ * script.google.com を直接開くと、Googleの「このアプリケーションは Google Apps Script のユーザーによって
+ * 作成されたものです」のバナーが毎回出るため、このページ経由で開く。
+ *
+ * 開くページはURLの # 以降に書く（例: index.html#https://script.google.com/macros/s/.../exec?t=...&k=...）。
+ * # 以降はブラウザの外に送られないので、鍵がこのページの配信元（GitHub Pages）に渡ることはない。
+ * 任意のサイトを枠で開く踏み台にされないよう、開けるのはGAS WebAppのURLだけに限る。
+ */
+(function () {
+  var ALLOWED = /^https:\/\/script\.google\.com\/(a\/macros\/[a-z0-9.\-]+|macros)\/s\/[A-Za-z0-9_\-]+\/exec(\?[A-Za-z0-9=&_.%\-]*)?$/;
+  var target = decodeURIComponent(location.hash.slice(1));
+  if (!ALLOWED.test(target)) {
+    document.body.innerHTML = '<p>開くページが指定されていないか、開けないURLです。</p>';
+    return;
+  }
+  var frame = document.createElement('iframe');
+  frame.src = target;
+  frame.allow = 'clipboard-write';
+  document.body.appendChild(frame);
+  /* ブラウザのタブの名前を、開いたツールの名前にする（枠の中の題名は読めないため、URLのツールIDから決める） */
+  var tool = (target.match(/[?&]t=([a-z0-9_]+)/) || [])[1];
+  var names = { pvmemo: 'PVメモ振り分け', shopping: 'ショッピングリサーチ', worknotion: '仕事メモ振り分け' };
+  document.title = names[tool] || (/[?&]edit=/.test(target) ? 'プランナー' : 'ツール');
+})();
+</script>
+</body>
+</html>
